@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="org.seckill.dao.SuccessKilledDao">
+	<insert id="insertSuccessKilled">
+		<!-- primary key confilicts, give out an error  -->
+		insert ignore into success_killed(secKill_id, user_phone, state)
+		values (#{secKillId}, #{userPhone}, 0)
+	</insert>
+	
+	<select id="queryByIdWithSeckill" resultType="SuccessKilled">
+	<!-- how to tell Mybatis to mapper seckill “”-->
+	<!-- Strength of Mysbatis: control SQL freely  -->
+		select 
+		  sk.secKill_id,
+		  sk.user_phone,
+		  sk.state,
+		  sk.create_time,
+		  s.seckill_id "seckill.seckill_id",
+		  s.name "seckill.name",
+		  s.start_time "seckill.start_time",
+		  s.end_time "seckill.end_time",
+		  s.create_time "seckill.create_time"
+		from success_killed sk
+		inner join seckill s on sk.secKill_id = s.seckill_id
+		where sk.secKill_id = #{secKillId}
+		
+	</select>
+</mapper>

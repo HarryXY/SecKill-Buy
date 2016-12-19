@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+             http://www.springframework.org/schema/context  
+                http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            ">
+    
+    <!-- integrate spring with mybatis -->
+	<!-- 1.configure database properties: ${url} -->
+	 
+	<context:property-placeholder location="classpath:spring/jdbc.properties"/>
+	
+	 
+	<!--配置整合mybatis过程-->
+    <!--  util:properties id="jdbc" location="classpath:spring/jdbc.properties"/-->
+	
+	<!-- 2.database connection pool -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!-- configure -->
+		<property name="driverClass" value="${driver}"></property>
+		<property name="jdbcUrl" value="${url}"></property>
+		<property name="user" value="${username}"></property>
+		<property name="password" value="${password}"></property>
+		
+		<!-- c3p0 properties -->
+		<property name="maxPoolSize" value="30"></property>
+		<property name="minPoolSize" value="10"></property>
+		<!-- set auto commit false-->
+		<property name="autoCommitOnClose" value="false"></property>
+		<!-- set time out -->
+		<property name="checkoutTimeout" value="1000"></property>
+		<!-- set retry times -->
+		<property name="acquireRetryAttempts" value="2"></property>
+	</bean>
+	
+	<!-- 精华部分：约定大于配置 -->
+	<!-- 3.configure SqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- inject connection pool -->
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- configure Mybatis: mybatis-config.xml -->
+		<property name="configLocation" value="classpath:conf/mybatis-config.xml"></property>
+		<!-- scan entity package, use alias -->
+		<property name="typeAliasesPackage" value="org.seckill.entity"></property>
+		<!-- scan Sql config doc, mapper needs it  -->
+		<property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+	</bean>
+	
+	<!-- 4.config scan DAO, to actively implements DAO, and inject into spring container -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- inject sqlSessionFactory -->
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+		<!-- set DAO needed to be scanned -->
+		<property name="basePackage" value="org.seckill.dao"></property>
+	</bean>
+
+</beans>
+
+	
+	
+	
